@@ -1,0 +1,476 @@
+*Loading data
+use "C:\Users\shimanto\Desktop\Stunting Papers\DATA\Stata\BDKR7RDT\BDKR7RFL.DTA", clear
+
+gen wgt=v005/1000000
+svyset [pw=wgt],psu(v001) strata(v022)
+
+*Stunting
+gen stunted=hw70
+replace stunted=. if hw70>=9996
+replace stunted=0 if hw70~=.
+replace stunted=1 if hw70<-200
+label define stunt 1 "Stunted" 0 "Not Stunted"
+label values stunted stunt
+svy:tab stunted,count
+
+
+*Mother Age.
+svy: tab v013
+gen mage1=v013
+recode mage1 1=1
+recode mage1 2=2
+recode mage1 3/7=3
+label define mage1 1 "15-19" 2 "20-24" 3 "25+"
+label values mage1 mage1
+svy: tab mage1 stunted, col count
+
+
+
+*Residence.
+svy: tab v025
+gen area1=v025
+recode area1 1=1
+recode area1 2=2
+label define area1  2 "Rural" 1 "Urban"
+label values area1 area1
+svy: tab area
+tab area1 stunted, col  count
+svy: tab area1 stunted, col count
+
+
+*Division.
+svy: tab v024
+gen division1=v024
+label define division1  1 "Barisal" 2 "Chittagong" 3 "Dhaka" 4 "Khulna" 5 "Rajshahi" 6 "Rangpur" 7 "Sylhet" 8 "Mymensingh"
+label values division1 division1
+tab division1 stunted, col count
+svy: tab division1 stunted, col count
+
+*Mother Education.
+svy: tab v106
+gen melevel1 = v106
+label define melevel1  0 "No education" 1 "Primary" 2 "Secondary" 3 "Higher"
+label values melevel melevel1
+svy: tab melevel1
+tab melevel1 stunted, col count
+svy: tab melevel1 stunted, col count
+
+*Father Education.
+svy: tab v701
+gen helevel1 = v701
+recode helevel1 8=.
+label define helevel1  0 "No education" 1 "Primary" 2 "Secondary" 3 "Higher"
+label values helevel helevel1
+svy: tab helevel1
+tab helevel1 stunted, col count
+svy: tab helevel stunted, col count
+
+*Father Age.
+svy: tab v730
+gen fage1=v730
+recode fage1 18/24=1
+recode fage1 25/29=2
+recode fage1 30/34=3
+recode fage1 35/80=4
+recode fage1 96/98=.
+label define fage1 1 ">= 24" 2 "25-29" 3 "30-34" 4 "35+"
+label values fage1 fage1
+svy: tab fage1 stunted, col count
+
+
+*Mother work.
+svy: tab v714
+gen mwork1 = v714
+label define mwork1  0 "No" 1 "Yes"
+label values mwork mwork1
+svy: tab mwork
+tab mwork stunted, col count
+svy: tab mwork stunted, col count
+
+*HH Occu.
+svy: tab v704
+gen hhocu1 = v704
+recode hhocu1 0=0
+recode hhocu1 12=1
+recode hhocu1 13=2
+recode hhocu1 51/52=3
+recode hhocu1 11=4
+recode hhocu1 14=4
+recode hhocu1 15=4
+recode hhocu1 16=4
+recode hhocu1 21=4
+recode hhocu1 22=4
+recode hhocu1 23=4
+recode hhocu1 31=4
+recode hhocu1 41=4
+recode hhocu1 61=4
+recode hhocu1 96=4
+recode hhocu1 98/99=.
+recode hhocu1 99998=.
+label define hhocu1  0 "Jobless" 1 "Farmer" 2 "Agriculture" 3 "Businessman" 4 "Others"
+label values hhocu hhocu1
+svy: tab hhocu
+tab hhocu stunted, col count
+svy: tab hhocu stunted, col count
+
+*Religion.
+svy: tab v130
+gen religion1=v130
+recode religion1 1=1
+recode religion1 2/4=2
+label define religion1 1 "Islam" 2 "Others"
+label values religion religion1
+svy: tab religion
+tab religion stunted, col count
+svy: tab religion stunted, col count
+
+*Wealth index Status.
+gen wind1= v190
+svy: tab wind1
+label define wind1  1 "Poorest" 2 "Poorer" 3 "Middle" 4 "Richer" 5 "Richest"
+label values wind wind1
+tab wind stunted, col count
+svy: tab wind stunted, col count
+
+*HH family members.
+gen hhmembers = v136
+svy: tab hhmembers
+replace  hhmembers    = 1 if (hhmembers <= 3) 
+replace  hhmembers   = 2 if (hhmembers > 3)
+label define hhmembers1 1 "less equal 3" 2 "greater 3"
+label values hhmembers hhmembers1
+tab hhmembers stunted, row count
+svy: tab hhmembers stunted, row count
+
+*household head sex.
+gen hhsex1 = v151
+svy: tab hhsex1
+label define hhsex1 1 "Male" 2 "Female"
+label values hhsex hhsex1
+tab hhsex stunted, row count
+svy: tab hhsex stunted, row count
+
+
+*ANC (NW).
+svy: tab m14, count
+gen anc1=m14
+recode anc1 0/3=1
+recode anc1 4/20=2
+recode anc1 98=.
+label define anc1 1 "less4" 2 "4above"
+label values anc anc1
+svy: tab anc
+tab anc stunted, row count
+svy: tab anc stunted, row count
+
+
+*media
+svy: tab v121
+gen tv=v121
+svy: tab tv
+recode tv 0=0
+recode tv 1=1
+recode tv 7=0
+tab tv stunted, row count
+svy: tab tv stunted, row count
+
+svy: tab v120
+gen radio=v120
+svy: tab radio
+recode radio 0=0
+recode radio 1=1
+recode radio 7=0
+tab radio stunted, row count
+svy: tab radio stunted, row count
+
+gen media1 = tv + radio
+tab media1
+recode media1 0=0
+recode media1 1/2=1
+label define media1 0 "No" 1 "Yes"
+label values media media1
+tab media stunted, row count
+svy: tab media stunted, row count
+
+
+***Child Information
+
+*C-section.
+gen csection1 = m17
+svy: tab csection1
+label define csection1 0 "No" 1 "Yes"
+label values csection csection1
+tab csection stunted, row count
+svy: tab csection stunted, row count
+
+*child sex.
+svy: tab b4
+gen csex1 = b4
+label define csex1 1 "male" 2 "Female"
+label values csex csex1
+tab csex stunted, row count
+svy: tab csex stunted, row count
+
+*Type of toilet facility.
+svy: tab v116
+gen tf1=v116
+recode tf1 10/15=1
+recode tf1 20/97=2
+recode tf1 99=.
+label define tf1 1 "modern toilet" 2 "Other"
+label values tf1 tf1
+svy: tab tf1
+tab tf1 stunted, row count
+svy: tab tf1 stunted, row count
+
+*partners scholling type
+svy: tab s903a
+gen pschtype1=s903a
+svy: tab pschtype1
+label define pschtype1 1 "School" 2 "Madrasha"
+label values pschtype pschtype1
+tab pschtype stunted, row count
+svy: tab pschtype stunted, row count
+
+
+* Child Age.
+gen cage1 = hw1
+svy: tab cage1
+recode cage1 0/11=1
+recode cage1 12/23=2
+recode cage1 24/35=3
+recode cage1 36/47=4
+recode cage1 48/59=5
+label define cage2 1 "0-11" 2 "12-23" 3 "24-35" 4 "36-47" 5 "48-59"
+label values cage1 cage2
+tab cage1 stunted, row count
+svy: tab cage1 stunted, row count
+
+*Place of delivery (NW).
+svy: tab m15
+gen Place_delivery1=m15
+recode Place_delivery1 10/11=1
+recode Place_delivery1 20/96=2
+recode Place_delivery1 99=.
+label define Place_delivery1 1 "Home" 2 "HF"
+label values Place_delivery Place_delivery1
+svy: tab Place_delivery
+tab Place_delivery stunted, row count
+svy: tab Place_delivery stunted, row count
+
+*birth order
+svy: tab bord
+gen birthord1=bord
+svy: tab birthord1
+recode birthord1 1/3=1
+recode birthord1 4/6=2
+recode birthord1 7/10=3
+label define birthord1 1 "1-3" 2 "4-6" 3 "7-10"
+label values birthord birthord1
+tab birthord stunted, row count
+svy: tab birthord stunted, row count
+
+
+*Early Childhood Disease.
+*Fever
+svy: tab h22
+gen fever=h22
+tab fever count
+svy: tab fever stunted, row count
+
+*Cough
+svy: tab h31
+gen cough=h31
+recode cough 1/2 = 1
+tab cough count
+svy: tab cough stunted, row count
+
+
+*diarrhea
+svy: tab h11
+gen diarrhea=h11
+recode diarrhea 1/2 = 1
+svy: tab diarrhea count
+svy: tab diarrhea stunted, row count
+
+
+******************Analysis************************************
+
+svy:tab stunted,count
+svy: tab mage1 stunted, col count
+
+svy: tab area1 stunted, col  count
+
+svy: tab division1 stunted, col count
+
+svy: tab melevel1 stunted, col count
+
+svy: tab helevel stunted, col count
+
+svy: tab fage1 stunted, col count
+
+svy: tab mwork stunted, col count
+
+svy: tab hhocu stunted, col count
+*insig
+svy: tab religion stunted, col count
+*Sig
+svy: tab wind stunted, col count
+*insig
+svy: tab hhmembers stunted, col count
+*insig
+svy: tab hhsex stunted, col  count
+*insig
+svy: tab hhmembers stunted, row count
+*insig
+svy: tab hhsex stunted, row count
+
+svy: tab anc stunted, row count
+
+svy: tab media stunted, row count
+
+svy: tab csection stunted, row count
+*insig
+svy: tab csex stunted, row count
+
+*insig
+svy: tab tf1 stunted, row count
+*insig
+svy: tab pschtype stunted, row count
+
+svy: tab cage1 stunted, row count
+
+svy: tab Place_delivery stunted, row count
+
+svy: tab birthord stunted, row count
+*insig
+svy: tab fever stunted, row count
+*insig
+svy: tab cough stunted, row count
+*insig
+svy: tab diarrhea stunted, row count
+
+********************************************************************************
+**Univariate Logistic regression
+********************************************************************************
+
+
+svy: logit stunted i.area1, or
+svy: logit stunted ib3.division1, or
+svy: logit stunted ib3.melevel, or
+svy: logit stunted ib3.helevel, or
+svy: logit stunted i.mwork, or
+
+svy: logit stunted ib3.hhocu, or
+svy: logit stunted ib2.anc, or
+svy: logit stunted ib4.wind, or
+svy: logit stunted ib1.media, or
+*Csec ommited
+svy: logit stunted ib1.csection, or
+svy: logit stunted i.cage1, or
+svy: logit stunted ib2.Place_delivery, or
+svy: logit stunted i.birthord, or
+
+********************************************************************************
+**Multivariate Logistic regression
+********************************************************************************
+ 
+svy: logit stunted ib2.area1 ib3.division1 ib3.melevel ib3.helevel i.mwork ib3.hhocu ib4.wind ib1.media i.cage1 i.birthord, or
+logit stunted ib2.area1 ib3.division1 ib3.melevel ib3.helevel i.mwork ib3.hhocu ib4.wind ib1.media i.cage1 i.birthord, or
+estat ic
+**********************************************************************
+* Stage A *** Compile parameters/inputs for Level-weights calculations
+**********************************************************************
+* a_c_h completed clusters by strata
+gen a_c_h=.
+quietly levelsof v022, local(lstrata)
+quietly foreach ls of local lstrata {
+tab v021 if v022==`ls', matrow(T)
+scalar stemp=rowsof(T)
+replace a_c_h=stemp if v022==`ls'
+}
+* A_h total number of census clusters by strata
+gen A_h = 0
+replace A_h = 96 if v022 == 1
+replace A_h = 44 if v022 == 2
+replace A_h = 532 if v022 == 3
+replace A_h = 96 if v022 == 4
+replace A_h = 138 if v022 == 5
+replace A_h = 918 if v022 == 6
+replace A_h = 96 if v022 == 7
+replace A_h = 167 if v022 == 8
+replace A_h = 1081 if v022 == 9
+replace A_h = 96 if v022 == 10
+replace A_h = 101 if v022 == 11
+replace A_h = 863 if v022 == 12
+replace A_h = 37 if v022 == 13
+replace A_h = 343 if v022 == 14
+replace A_h = 96 if v022 == 15
+replace A_h = 104 if v022 == 16
+replace A_h = 664 if v022 == 17
+replace A_h = 70 if v022 == 18
+replace A_h = 698 if v022 == 19
+replace A_h = 96 if v022 == 20
+replace A_h = 26 if v022 == 21
+replace A_h = 358 if v022 == 22
+
+
+* M_h average number of households per cluster by strata
+gen M_h = 0
+replace M_h = 7 if v022 == 1
+replace M_h = 15 if v022 == 2
+replace M_h = 49 if v022 == 3
+replace M_h = 16 if v022 == 4
+replace M_h = 17 if v022 == 5
+replace M_h = 59 if v022 == 6
+replace M_h = 26 if v022 == 7
+replace M_h = 26 if v022 == 8
+replace M_h = 52 if v022 == 9
+replace M_h = 9 if v022 == 10
+replace M_h = 19 if v022 == 11
+replace M_h = 58 if v022 == 12
+replace M_h = 19 if v022 == 13
+replace M_h = 58 if v022 == 14
+replace M_h = 6 if v022 == 15
+replace M_h = 21 if v022 == 16
+replace M_h = 62 if v022 == 17
+replace M_h = 24 if v022 == 18
+replace M_h = 61 if v022 == 19
+replace M_h = 9 if v022 == 20
+replace M_h = 13 if v022 == 21
+replace M_h = 49 if v022 == 22
+* m_c total number of completed households (added from the HR dataset)
+gen m_c= 20160
+* M total number of households in country
+gen M = 32067700
+* S_h households selected per stratum
+gen S_h = 120
+
+* Steps to approximate Level-1 and Level-2 weights from Household or Individual
+**********************************************************************
+* Stage B *** Approximate Level-weights ***
+**********************************************************************
+* Steps to approximate Level-1 and Level-2 weights from Household or Individual Weights
+*Step 1. De-normalize the final weight, using approximated normalization factor
+gen d_HH = wgt * (M/m_c)
+*Step 2. Approximate the Level-2 weight
+* f the variation factor
+gen f = d_HH / ((A_h/a_c_h) * (M_h/S_h))
+* Calculating the level-weights based on different values of alpha
+local alphas 0 0.1 .25 .50 .75 0.90 1
+local i = 1
+foreach dom of local alphas{
+gen wt2_`i' = (A_h/a_c_h)*(f^`dom')
+gen wt1_`i' = d_HH/wt2_`i'
+local ++i
+}
+
+*svyset using alpha 0.5
+svyset v001, weight(wt2_3) strata(v022) , singleunit(centered) || _n, weight(wt1_3)
+
+******************************************************************************
+**Multilevel binary logistic Logistic regression
+********************************************************************************
+svy: melogit stunted ib2.area1 ib3.division1 ib3.melevel ib3.helevel i.mwork ib3.hhocu ib4.wind ib1.media i.cage1 i.birthord|| v001:,or
+melogit stunted ib2.area1 ib3.division1 ib3.melevel ib3.helevel i.mwork ib3.hhocu ib4.wind ib1.media i.cage1 i.birthord|| v001:,or
+estat ic
